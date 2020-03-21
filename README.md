@@ -1,8 +1,8 @@
-= Easter egg raytracer =
+# Easter egg raytracer
 
 Install: Clone repo and open index.html in your preferred browser.
 
-=== Files: ===
+## Files:
 
 * index.html - Scene and cameras are set up here
 * trace.js - All things raytracing
