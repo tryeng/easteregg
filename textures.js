@@ -6,39 +6,34 @@ class EasterEggTexture {
     }
     get_pixel(pos) {
         if (pos[1] > 0.35 && pos[1] < 0.40) {
-            if ((pos[0] * 100 - 2.5) % 10 < 5) {
+            if ((pos[0] * 100 - 2.5) % 10 < 0) {
                 return [0.8, 0.8, 0.95];
             }
             else {
                 return this.color1;
             }
         }
-        if ((pos[1] > 0.42 && pos[1] < 0.48)) {
-            if ((pos[0] * 100 - 2.5) % 10 > 5) {
+        else if (pos[1] > 0.42 && pos[1] < 0.48) {
+            if ((pos[0] * 100 - 1.5) % 10 < 7) {
                 return [0.8, 0.8, 0.95];
             }
             else {
                 return this.color2;
             }
         }
-        if (pos[1] > 0.50 && pos[1] < 0.60) {
-                if ((pos[0] * 100 - 6) % 10 < 1) {
-                    return [0.8, 0.8, 0.95];
-                }
-                else {
-                    return this.color1;
-                }
-            }
-        if ((pos[1] > 0.62 && pos[1] < 0.68)) {
-            if ((pos[0] * 100 - 2.5) % 10 > 5) {
+        else if (Math.abs(pos[1] - 0.55) < Math.cos(pos[0] * Math.PI * 20 + Math.PI) * 0.02 + 0.04) {
+            return this.color1;
+        }
+        else if ((pos[1] > 0.62 && pos[1] < 0.68)) {
+            if ((pos[0] * 100 - 1.5) % 10 < 7) {
                 return [0.8, 0.8, 0.95];
             }
             else {
                 return this.color2;
             }
         }
-        if ((pos[1] > 0.70 && pos[1] < 0.75)) {
-            if ((pos[0] * 100 - 2.5) % 10 < 5) {
+        else if ((pos[1] > 0.70 && pos[1] < 0.75)) {
+            if ((pos[0] * 100 - 2.5) % 10 < 0) {
                 return [0.8, 0.8, 0.95];
             }
             else {

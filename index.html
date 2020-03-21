@@ -20,10 +20,10 @@
     var geometry = [
         new Egg([-17, -3, 33], 3, 1.60, new EasterEggTexture(5, purple, blue)),
         new Egg([-11.8, -3, 23], 3, 1.60, new EasterEggTexture(5, yellow, orange)),
-        new Egg([-6, -3, 14], 3, 1.60, new EasterEggTexture(5, orange, red)),
+        new Egg([-6, -3, 14], 3, 1.60, new EasterEggTexture(5, blue, orange)),
         new Egg([0, -3, 11.5], 3, 1.60, new EasterEggTexture(5, red, purple)),
         new Egg([6, -3, 14], 3, 1.60, new EasterEggTexture(5, green, blue)),
-        new Egg([11.8, -3, 23], 3, 1.60, new EasterEggTexture(5, blue, yellow)),
+        new Egg([11.8, -3, 23], 3, 1.60, new EasterEggTexture(5, orange, red)),
         new Egg([17, -3, 33], 3, 1.60, new EasterEggTexture(5, green, purple)),
     ];
     var lights = [
@@ -34,7 +34,7 @@
     ];
     var scene = new Scene(geometry, lights);
     var camera = new Camera(40, 11, 100);
-    var image = camera.render(600, 165, 8, scene);
+    var image = camera.render(600, 165, 4, scene);
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
     ctx.putImageData(image, 0, 0);
