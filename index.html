@@ -5,16 +5,36 @@
 </style>
 </head>
 <body>
-<canvas id="canvas" width="400" height="400" style="border: 1px solid black; margin: auto;"></canvas>
+<canvas id="canvas" width="600" height="165" style="border: 1px solid black; margin: auto;"></canvas>
 <script src="vec3.js"></script>
 <script src="trace.js"></script>
 <script src="textures.js"></script>
 <script>
-    var geometry = [new Egg([0, -2, 6], 5, 1.55, new EasterEggTexture())];
-    var lights = [new DirectionalLight([-2, -1.5, 2], [0.7, 0.7, 0.7]), new AmbientLight([0.4, 0.4, 0.4])];
+    var green = [0.4, 0.8, 0.4];
+    var red = [0.8, 0.4, 0.4];
+    var blue = [0.4, 0.4, 0.8];
+    var yellow = [0.8, 0.8, 0.4];
+    var orange = [0.9, 0.7, 0.4];
+    var cyan = [0.4, 0.8, 0.9];
+    var purple = [0.8, 0.4, 0.8];
+    var geometry = [
+        new Egg([-17, -3, 33], 3, 1.60, new EasterEggTexture(5, purple)),
+        new Egg([-11.8, -3, 23], 3, 1.60, new EasterEggTexture(5, yellow)),
+        new Egg([-6, -3, 14], 3, 1.60, new EasterEggTexture(5, orange)),
+        new Egg([0, -3, 11.5], 3, 1.60, new EasterEggTexture(5, red)),
+        new Egg([6, -3, 14], 3, 1.60, new EasterEggTexture(5, green)),
+        new Egg([11, -3, 23], 3, 1.60, new EasterEggTexture(5, cyan)),
+        new Egg([17, -3, 33], 3, 1.60, new EasterEggTexture(5, blue)),
+    ];
+    var lights = [
+        new DirectionalLight([-2.0, -3, 4], [0.35, 0.35, 0.35]),
+        //new DirectionalLight([-0.6, -5.0, 0.5], [0.25, 0.25, 0.25]),
+        new DirectionalLight([2.0, -3, 4], [0.35, 0.35, 0.35]),
+        new AmbientLight([0.6, 0.6, 0.6])
+    ];
     var scene = new Scene(geometry, lights);
-    var camera = new Camera(15, 15, 20);
-    var image = camera.render(400, 400, 1, scene);
+    var camera = new Camera(40, 11, 100);
+    var image = camera.render(600, 165, 6, scene);
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
     ctx.putImageData(image, 0, 0);

@@ -97,32 +97,29 @@ class Egg {
         var b = a*a;
         var c = o_c_len * o_c_len - this.radius * this.radius;
         var sq = b - c;
+        var nohit = false;
         if (sq >= 0) {
-            //console.log("hit");
             var d = -a - Math.sqrt(sq);
             if (d < 0) {
                 d = -a + Math.sqrt(sq);
                 if (d <= 0) {
-                    return false;
+                    nohit = true;
                 }
             }
             var position = vec3_add(ray.origin, vec3_scale(ray.direction, d));
             var normal = vec3_normalize(vec3_sub(position, this.center));
             var tex_coord = [0, (position[1] + this.radius - this.center[1]) / (this.radius * 2)];
             var tex_color = this.texture.get_pixel(tex_coord);
-            if (position[1] - this.center[1] > 0) {
-                console.log("test");
-                return this.intersects2(ray);
+            if (position[1] - this.center[1] <= 0 && !nohit) {
+                return new Intersection(position, normal, tex_coord, tex_color, d, ray, this);
             }
-            return new Intersection(position, normal, tex_coord, tex_color, d, ray, this);
         }
-        return false;
+        return this.intersects2(ray);
     }
 
     intersects2(iray) {
         var origin = this.move_scale(iray.origin, 1 / this.top_stretch);
         var direction = this.scale(iray.direction, 1 / this.top_stretch);
-        //console.log(direction);
         var ray = new Ray(origin, direction);
         var o_c = vec3_sub(ray.origin, this.center);
         var o_c_len = vec3_len(o_c);
@@ -131,7 +128,6 @@ class Egg {
         var c = o_c_len * o_c_len - this.radius * this.radius;
         var sq = b - c;
         if (sq >= 0) {
-            //console.log("hit");
             var d = -a - Math.sqrt(sq);
             if (d < 0) {
                 d = -a + Math.sqrt(sq);
@@ -143,7 +139,9 @@ class Egg {
             var normal = vec3_normalize(this.scale(vec3_sub(position, this.center), this.top_stretch));
             var tex_coord = [0, (position[1] + this.radius - this.center[1]) / (this.radius * 2)];
             var tex_color = this.texture.get_pixel(tex_coord);
-            return new Intersection(position, normal, tex_coord, tex_color, d, iray, this);
+            if (position[1] - this.center[1] > 0) {
+                return new Intersection(position, normal, tex_coord, tex_color, d, ray, this);
+            }
         }
         return false;
     }
@@ -160,7 +158,7 @@ class Camera {
     constructor(width, height, focal_length) {
         this.width = width;
         this.height = height;
-        this.focal_point = [0, 0, -focal_length];
+        this.focal_point = [0, 10, -focal_length];
     }
     render(res_x, res_y, aa_res, scene) {
         res_x *= aa_res;
@@ -177,7 +175,6 @@ class Camera {
                 if (pixel > 1) {
                     pixel = 1.0
                 }
-                //if (y == 0)console.log(ray.origin, ray.direction);
                 for (var i = 0; i < 4; i++) {
                     data[(y * res_x + x) * 4 + i] = pixel[i] * 255;
                 }

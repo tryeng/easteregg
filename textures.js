@@ -1,8 +1,10 @@
 class EasterEggTexture {
-    constructor() {
+    constructor(freq, color1) {
+        this.freq = freq;
+        this.color1 = color1;
     }
     get_pixel(pos) {
-        if (pos[1] > 0.3 && pos[1] < 0.7 && pos[1] * 100 % 8 < 3) return [0.5, 0.8, 0.5];
-        else return [0.78, 0.78, 0.95];
+        if (pos[1] > 0.35 && pos[1] < 0.75 && pos[1] * 100 % 8 < 8) return this.color1;
+        else return [0.8, 0.8, 0.95];
     }
 }
