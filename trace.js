@@ -195,16 +195,22 @@ class Camera {
                 for (var i = 0; i < 4; i++) {
                     var aa = [0, 0, 0, 0];
                 }
+                var n_opaque = 0;
                 for (var a = 0; a < aa_res; a++) {
-                    for (var b = 0; b < aa_res; b++) {                        
-                        for (var i = 0; i < 4; i++) {
-                            aa[i] += data[((y * aa_res + a) * res_x * aa_res + x * aa_res + b) * 4 + i];
+                    for (var b = 0; b < aa_res; b++) {
+                        var opaque = data[((y * aa_res + a) * res_x * aa_res + x * aa_res + b) * 4 + 3] > 0;
+                        if (opaque) {
+                            n_opaque++;
+                            for (var i = 0; i < 4; i++) {
+                                aa[i] += data[((y * aa_res + a) * res_x * aa_res + x * aa_res + b) * 4 + i];
+                            }
                         }
                     }
                 }
-                for (var i = 0; i < 4; i++) {
-                    aa_data[(y * res_x + x) * 4 + i] = aa[i] * factor;
+                for (var i = 0; i < 3; i++) {
+                    aa_data[(y * res_x + x) * 4 + i] = aa[i] / n_opaque;
                 }
+                aa_data[(y * res_x + x) * 4 + 3] = n_opaque / (aa_res * aa_res - 1) * 255;
             }
         }
         console.log("done");
