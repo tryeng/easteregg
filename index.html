@@ -15,16 +15,16 @@
     var blue = [0.4, 0.4, 0.8];
     var yellow = [0.8, 0.8, 0.4];
     var orange = [0.9, 0.7, 0.4];
-    var cyan = [0.4, 0.8, 0.9];
+    var cyan = [0.4, 0.7, 0.7];
     var purple = [0.8, 0.4, 0.8];
     var geometry = [
-        new Egg([-17, -3, 33], 3, 1.60, new EasterEggTexture(5, purple)),
-        new Egg([-11.8, -3, 23], 3, 1.60, new EasterEggTexture(5, yellow)),
-        new Egg([-6, -3, 14], 3, 1.60, new EasterEggTexture(5, orange)),
-        new Egg([0, -3, 11.5], 3, 1.60, new EasterEggTexture(5, red)),
-        new Egg([6, -3, 14], 3, 1.60, new EasterEggTexture(5, green)),
-        new Egg([11, -3, 23], 3, 1.60, new EasterEggTexture(5, cyan)),
-        new Egg([17, -3, 33], 3, 1.60, new EasterEggTexture(5, blue)),
+        new Egg([-17, -3, 33], 3, 1.60, new EasterEggTexture(5, purple, blue)),
+        new Egg([-11.8, -3, 23], 3, 1.60, new EasterEggTexture(5, yellow, orange)),
+        new Egg([-6, -3, 14], 3, 1.60, new EasterEggTexture(5, orange, red)),
+        new Egg([0, -3, 11.5], 3, 1.60, new EasterEggTexture(5, red, purple)),
+        new Egg([6, -3, 14], 3, 1.60, new EasterEggTexture(5, green, blue)),
+        new Egg([11.8, -3, 23], 3, 1.60, new EasterEggTexture(5, blue, yellow)),
+        new Egg([17, -3, 33], 3, 1.60, new EasterEggTexture(5, green, purple)),
     ];
     var lights = [
         new DirectionalLight([-2.0, -3, 4], [0.35, 0.35, 0.35]),
@@ -34,7 +34,7 @@
     ];
     var scene = new Scene(geometry, lights);
     var camera = new Camera(40, 11, 100);
-    var image = camera.render(600, 165, 6, scene);
+    var image = camera.render(600, 165, 8, scene);
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
     ctx.putImageData(image, 0, 0);

@@ -108,16 +108,19 @@ class Egg {
             }
             var position = vec3_add(ray.origin, vec3_scale(ray.direction, d));
             var normal = vec3_normalize(vec3_sub(position, this.center));
-            var tex_coord = [0, (position[1] + this.radius - this.center[1]) / (this.radius * 2)];
+            var tex_x = Math.acos(vec3_dotp(vec3_normalize([normal[0], 0, normal[2]]), [0, 0, -1]));
+            if (normal[0] < 0) tex_x *= -1;
+            tex_x = (tex_x + Math.PI) / (Math.PI*2);
+            var tex_coord = [tex_x, (position[1] + this.radius - this.center[1]) / (this.radius * 2)];
             var tex_color = this.texture.get_pixel(tex_coord);
             if (position[1] - this.center[1] <= 0 && !nohit) {
                 return new Intersection(position, normal, tex_coord, tex_color, d, ray, this);
             }
         }
-        return this.intersects2(ray);
+        return this.intersects_top(ray);
     }
 
-    intersects2(iray) {
+    intersects_top(iray) {
         var origin = this.move_scale(iray.origin, 1 / this.top_stretch);
         var direction = this.scale(iray.direction, 1 / this.top_stretch);
         var ray = new Ray(origin, direction);
@@ -137,7 +140,10 @@ class Egg {
             }
             var position = this.move_scale(vec3_add(ray.origin, vec3_scale(ray.direction, d)), this.top_stretch);
             var normal = vec3_normalize(this.scale(vec3_sub(position, this.center), this.top_stretch));
-            var tex_coord = [0, (position[1] + this.radius - this.center[1]) / (this.radius * 2)];
+            var tex_x = Math.acos(vec3_dotp(vec3_normalize([normal[0], 0, normal[2]]), [0, 0, -1]));
+            if (normal[0] < 0) tex_x *= -1;
+            tex_x = (tex_x + Math.PI) / (Math.PI*2);
+            var tex_coord = [tex_x, (position[1] + this.radius - this.center[1]) / (this.radius * 2)];
             var tex_color = this.texture.get_pixel(tex_coord);
             if (position[1] - this.center[1] > 0) {
                 return new Intersection(position, normal, tex_coord, tex_color, d, ray, this);
