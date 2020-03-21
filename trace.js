@@ -189,7 +189,6 @@ class Camera {
         res_x /= aa_res;
         res_y /= aa_res;
         var aa_data = new Uint8ClampedArray(res_x * res_y * 4);
-        var factor = 1 / aa_res / aa_res;
         for (var y = 0; y <= res_y; y++) {
             for (var x = 0; x <= res_x; x++) {
                 for (var i = 0; i < 4; i++) {
