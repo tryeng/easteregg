@@ -4,7 +4,7 @@ class EasterEggTexture {
         this.textures = textures;
     }
 
-    get_pixel(pos) {
+    get_texel(pos) {
         var final_texel = false;
         for (var i = 0; i < this.textures.length; i++) {
             var texel = this.textures[i].get_texel(pos);

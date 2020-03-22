@@ -1,10 +1,11 @@
 class Ray {
     constructor(origin, direction) {
-        this.origin = vec3_add(origin, vec3_scale(direction, 0.000000001));
         this.direction = vec3_normalize(direction)
+        // Move origin slightly in our direction to avoid crashing in object the ray is cast from.
+        this.origin = vec3_add(origin, vec3_scale(this.direction, 0.000000001));
     }
     
-    hits(scene) {
+    intersect(scene) {
         var closest = false;
         for (var i = 0; i < scene.geometry.length; i++) {
             var intersection = scene.geometry[i].intersects(this)
@@ -15,31 +16,30 @@ class Ray {
         return closest;
     }
 
-    render(scene) {
-        var intersection = this.hits(scene);
-        if (intersection) {
-            var color = [0, 0, 0];
-            for (var i = 0; i < scene.lights.length; i++) {
-                var light = scene.lights[i];
-                if (light instanceof AmbientLight) {
-                    color = vec3_add(color, vec3_mul(intersection.tex_color, light.color));
-                }
-                if (light instanceof DirectionalLight) {
-                    if (!(new Ray(intersection.position, vec3_neg(light.direction))).hits(scene)) {
-                        var cos_light_angle = vec3_dotp(vec3_neg(light.direction), intersection.normal);
-                        if (cos_light_angle < 0) cos_light_angle = 0;
-                        //console.log(cos_light_angle);
-                        color = vec3_add(color, vec3_mul(intersection.tex_color, vec3_scale(light.color, cos_light_angle)));
-                        //console.log("test");
-                    }
-                }
-                if (light instanceof PointLight) {
+    illuminate(intersection, scene) {
+        var color = [0, 0, 0]; // Darkness was upon the face of the deep.
+        for (var i = 0; i < scene.lights.length; i++) {
+            var light = scene.lights[i];
+            if (light instanceof AmbientLight) {
+                color = vec3_add(color, vec3_mul(intersection.tex_color, light.color));
+            }
+            if (light instanceof DirectionalLight) {
+                if (!(new Ray(intersection.position, vec3_neg(light.direction))).intersect(scene)) {
+                    var cos_light_angle = vec3_dotp(vec3_neg(light.direction), intersection.normal);
+                    //if (cos_light_angle < 0) cos_light_angle = 0;
+                    color = vec3_add(color, vec3_mul(intersection.tex_color, vec3_scale(light.color, cos_light_angle)));
                 }
             }
-            var pixel = [color[0], color[1], color[2], 1];
         }
-        else { // Ray did't hit anything. Return alpha 0
-            var pixel = [0, 0, 0, 0];
+        return [color[0], color[1], color[2], 1]; // And there was light.
+    }
+
+    render(scene) {
+        var pixel = [0, 0, 0, 0]; // Pixel is transparent (alpha 0) by default, until we hit something.
+
+        var intersection = this.intersect(scene);
+        if (intersection) {
+            var pixel = this.illuminate(intersection, scene);
         }
         return pixel;
     }
@@ -47,13 +47,6 @@ class Ray {
 
 class AmbientLight {
     constructor(color) {
-        this.color = color;
-    }
-}
-
-class PointLight {
-    constructor(position, color) {
-        this.position = position;
         this.color = color;
     }
 }
@@ -91,40 +84,16 @@ class Egg {
     scale(v, s) {
         return [v[0], v[1] * s, v[2]];
     }
+
     intersects(ray) {
-        var o_c = vec3_sub(ray.origin, this.center);
-        var o_c_len = vec3_len(o_c);
-        var a = vec3_dotp(ray.direction, o_c);
-        var b = a*a;
-        var c = o_c_len * o_c_len - this.radius * this.radius;
-        var sq = b - c;
-        var behind_camera = false;
-        if (sq >= 0) {
-            var d = -a - Math.sqrt(sq);
-            if (d < 0) {
-                d = -a + Math.sqrt(sq);
-                if (d <= 0) {
-                    behind_camera = true;
-                }
-            }
-            var position = vec3_add(ray.origin, vec3_scale(ray.direction, d));
-            var normal = vec3_normalize(vec3_sub(position, this.center));
-            var tex_x = Math.acos(vec3_dotp(vec3_normalize([normal[0], 0, normal[2]]), [0, 0, -1]));
-            if (normal[0] < 0) tex_x *= -1;
-            tex_x = (tex_x + Math.PI) / (Math.PI*2);
-            var tex_coord = [tex_x, (position[1] + this.radius - this.center[1]) / this.egg_height];
-            var tex_color = this.texture.get_pixel(tex_coord);
-            if (position[1] - this.center[1] <= 0 && !behind_camera) {
-                return new Intersection(position, normal, tex_coord, tex_color, d, ray, this);
-            }
-        }
-        // The ray did not intersect the bottom half of this egg, lets try the top half.
-        return this.intersects_top(ray);
+        return this.intersect_half(ray, 1, (p) => p <= 0) ||
+            this.intersect_half(ray, this.top_stretch, (p) => p > 0);
+
     }
 
-    intersects_top(iray) {
-        var origin = this.move_scale(iray.origin, 1 / this.top_stretch);
-        var direction = this.scale(iray.direction, 1 / this.top_stretch);
+    intersect_half(iray, scale_factor, half_func) {
+        var origin = this.move_scale(iray.origin, 1 / scale_factor);
+        var direction = this.scale(iray.direction, 1 / scale_factor);
         var ray = new Ray(origin, direction);
         var o_c = vec3_sub(ray.origin, this.center);
         var o_c_len = vec3_len(o_c);
@@ -135,21 +104,24 @@ class Egg {
         if (sq >= 0) {
             var d = -a - Math.sqrt(sq);
             if (d < 0) {
-                d = -a + Math.sqrt(sq);
+                return false;
+                /*d = -a + Math.sqrt(sq);
                 if (d <= 0) {
                     return false;
-                }
+                }*/
             }
-            var position = this.move_scale(vec3_add(ray.origin, vec3_scale(ray.direction, d)), this.top_stretch);
-            var normal = vec3_normalize(this.scale(vec3_sub(position, this.center), this.top_stretch));
+            var position = vec3_add(ray.origin, vec3_scale(ray.direction, d));
+            var normal = vec3_sub(position, this.center);
+            position = this.move_scale(position, scale_factor);
             var tex_x = Math.acos(vec3_dotp(vec3_normalize([normal[0], 0, normal[2]]), [0, 0, -1]));
             if (normal[0] < 0) tex_x *= -1;
             tex_x = (tex_x + Math.PI) / (Math.PI*2);
             var tex_y = (position[1] - this.center[1] + this.radius) / this.egg_height;
             var tex_coord = [tex_x, tex_y];
-            var tex_color = this.texture.get_pixel(tex_coord);
-            if (position[1] - this.center[1] > 0) {
-                return new Intersection(position, normal, tex_coord, tex_color, d, ray, this);
+            var tex_color = this.texture.get_texel(tex_coord);
+            if (half_func(position[1] - this.center[1])) {
+                normal = vec3_normalize(this.scale(normal, scale_factor));
+                return new Intersection(position, normal, tex_coord, tex_color, d, iray, this);
             }
         }
         return false;
