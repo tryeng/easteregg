@@ -83,6 +83,7 @@ class Egg {
         this.radius = radius;
         this.top_stretch = top_stretch;
         this.texture = texture;
+        this.egg_height = this.radius + this.radius * this.top_stretch;
     }
     move_scale(v, s) {
         return [v[0], this.center[1] + (v[1] - this.center[1]) * s, v[2]];
@@ -97,13 +98,13 @@ class Egg {
         var b = a*a;
         var c = o_c_len * o_c_len - this.radius * this.radius;
         var sq = b - c;
-        var nohit = false;
+        var behind_camera = false;
         if (sq >= 0) {
             var d = -a - Math.sqrt(sq);
             if (d < 0) {
                 d = -a + Math.sqrt(sq);
                 if (d <= 0) {
-                    nohit = true;
+                    behind_camera = true;
                 }
             }
             var position = vec3_add(ray.origin, vec3_scale(ray.direction, d));
@@ -111,12 +112,13 @@ class Egg {
             var tex_x = Math.acos(vec3_dotp(vec3_normalize([normal[0], 0, normal[2]]), [0, 0, -1]));
             if (normal[0] < 0) tex_x *= -1;
             tex_x = (tex_x + Math.PI) / (Math.PI*2);
-            var tex_coord = [tex_x, (position[1] + this.radius - this.center[1]) / (this.radius * 2)];
+            var tex_coord = [tex_x, (position[1] + this.radius - this.center[1]) / this.egg_height];
             var tex_color = this.texture.get_pixel(tex_coord);
-            if (position[1] - this.center[1] <= 0 && !nohit) {
+            if (position[1] - this.center[1] <= 0 && !behind_camera) {
                 return new Intersection(position, normal, tex_coord, tex_color, d, ray, this);
             }
         }
+        // The ray did not intersect the bottom half of this egg, lets try the top half.
         return this.intersects_top(ray);
     }
 
@@ -143,7 +145,8 @@ class Egg {
             var tex_x = Math.acos(vec3_dotp(vec3_normalize([normal[0], 0, normal[2]]), [0, 0, -1]));
             if (normal[0] < 0) tex_x *= -1;
             tex_x = (tex_x + Math.PI) / (Math.PI*2);
-            var tex_coord = [tex_x, (position[1] + this.radius - this.center[1]) / (this.radius * 2)];
+            var tex_y = (position[1] - this.center[1] + this.radius) / this.egg_height;
+            var tex_coord = [tex_x, tex_y];
             var tex_color = this.texture.get_pixel(tex_coord);
             if (position[1] - this.center[1] > 0) {
                 return new Intersection(position, normal, tex_coord, tex_color, d, ray, this);
@@ -164,7 +167,7 @@ class Camera {
     constructor(width, height, focal_length) {
         this.width = width;
         this.height = height;
-        this.focal_point = [0, 10, -focal_length];
+        this.focal_point = [0, 30, -focal_length];
     }
     render(res_x, res_y, aa_res, scene) {
         res_x *= aa_res;
@@ -186,6 +189,9 @@ class Camera {
                 }
             }
         }
+
+        console.log("Antialiasing...");
+
         res_x /= aa_res;
         res_y /= aa_res;
         var aa_data = new Uint8ClampedArray(res_x * res_y * 4);
@@ -212,7 +218,7 @@ class Camera {
                 aa_data[(y * res_x + x) * 4 + 3] = n_opaque / (aa_res * aa_res - 1) * 255;
             }
         }
-        console.log("done");
+        console.log("Done!");
         return new ImageData(aa_data, res_x, res_y);
     }
 }
