@@ -78,6 +78,7 @@ class Egg {
         this.texture = texture;
         this.egg_height = this.radius + this.radius * this.top_stretch;
     }
+
     move_scale(v, s) {
         return [v[0], this.center[1] + (v[1] - this.center[1]) * s, v[2]];
     }
@@ -88,7 +89,6 @@ class Egg {
     intersects(ray) {
         return this.intersect_half(ray, 1, (p) => p <= 0) ||
             this.intersect_half(ray, this.top_stretch, (p) => p > 0);
-
     }
 
     intersect_half(iray, scale_factor, half_func) {
