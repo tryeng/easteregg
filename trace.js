@@ -29,7 +29,7 @@ class Ray {
 
         var intersection = this.intersect(scene);
         if (intersection) {
-            var pixel = this.illuminate(intersection, scene);
+            pixel = this.illuminate(intersection, scene);
         }
         return pixel;
     }
