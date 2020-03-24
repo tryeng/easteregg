@@ -9,7 +9,7 @@ class EasterEggTexture {
         for (var i = 0; i < this.textures.length; i++) {
             texel = this.textures[i].get_texel(pos) || texel;
         }
-        
+
         return texel || this.eggy;
     }
 }
@@ -20,6 +20,7 @@ class Stripe {
         this.width = width;
         this.color = color;
     }
+
     get_texel(pos) {
         if (Math.abs(pos[1] - this.center) < this.width / 2) {
             return this.color;
@@ -37,6 +38,7 @@ class DoubleSine {
         this.amplitude = amplitude;
         this.color = color;
     }
+
     get_texel(pos) {
         if (Math.abs(pos[1] - this.center) < (this.width / 2) + Math.cos(pos[0] * Math.PI * 2 * this.freq) * this.amplitude / 2 ) {
             return this.color;
@@ -54,6 +56,7 @@ class Sine {
         this.amplitude = amplitude;
         this.color = color;
     }
+
     get_texel(pos) {
         var cos = Math.cos((pos[0] * this.freq +this.offset) * Math.PI * 2);
         if (Math.abs(pos[1] - this.center + cos * this.amplitude / 2) < (this.width / 2) ) {
@@ -73,6 +76,7 @@ class DoubleSinePow {
         this.pow = pow;
         this.color = color;
     }
+
     get_texel(pos) {
         var cos = Math.cos((pos[0] + offset) * Math.PI * 2 * this.freq);
         if (Math.abs(pos[1] - this.center) < (this.width / 2) + Math.pow(Math.abs(cos), this.pow) * (Math.abs(cos)/cos) * this.amplitude / 2 ) {
