@@ -5,19 +5,12 @@ class EasterEggTexture {
     }
 
     get_texel(pos) {
-        var final_texel = false;
+        var texel = false;
         for (var i = 0; i < this.textures.length; i++) {
-            var texel = this.textures[i].get_texel(pos);
-            if (texel) {
-                final_texel = texel;
-            }
+            texel = this.textures[i].get_texel(pos) || texel;
         }
         
-        if (!final_texel) {
-            final_texel = this.eggy;
-        }
-
-        return final_texel;
+        return texel || this.eggy;
     }
 }
 
@@ -69,7 +62,6 @@ class Sine {
         else return false;
     }
 }
-
 
 class DoubleSinePow {
     constructor(center, width, freq, offset, amplitude, pow, color) {

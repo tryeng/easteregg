@@ -62,9 +62,9 @@ class Intersection {
     constructor(position, normal, tex_coord, tex_color, distance, ray, object) {
         this.position = position;
         this.normal = normal;
+        this.distance = distance;
         this.tex_coord = tex_coord;
         this.tex_color = tex_color;
-        this.distance = distance;
         this.ray = ray;
         this.object = object;
     }
@@ -82,6 +82,7 @@ class Egg {
     move_scale(v, s) {
         return [v[0], this.center[1] + (v[1] - this.center[1]) * s, v[2]];
     }
+
     scale(v, s) {
         return [v[0], v[1] * s, v[2]];
     }
@@ -102,10 +103,11 @@ class Egg {
         var c = o_c_len * o_c_len - this.radius * this.radius;
         var sq = b - c;
         if (sq >= 0) {
-            var d = -a - Math.sqrt(sq);
+            var sqrt = Math.sqrt(sq)
+            var d = -a - sqrt;
             if (d < 0) {
                 return false;
-                /*d = -a + Math.sqrt(sq);
+                /*d = -a + sqrt;
                 if (d <= 0) {
                     return false;
                 }*/
@@ -142,6 +144,7 @@ class Camera {
         this.focal_point = [0, 30, -focal_length];
     }
     render(res_x, res_y, aa_res, scene) {
+        var start_time = new Date().getTime();
         res_x *= aa_res;
         res_y *= aa_res;
         var data = new Uint8ClampedArray(res_x * res_y * 4);
@@ -150,12 +153,9 @@ class Camera {
             for (var x = 0; x <= res_x; x++) {
                 var vp_point = [(-this.width / 2) + this.width / res_x * (x + 0.5),
                                 (this.height / 2) - this.height / res_y * (y + 0.5),
-                                0]
+                                0];
                 var ray = new Ray(vp_point, vec3_normalize(vec3_sub(vp_point, this.focal_point)));
                 var pixel = ray.render(scene);
-                if (pixel > 1) {
-                    pixel = 1.0
-                }
                 for (var i = 0; i < 4; i++) {
                     data[(y * res_x + x) * 4 + i] = pixel[i] * 255;
                 }
@@ -190,7 +190,7 @@ class Camera {
                 aa_data[(y * res_x + x) * 4 + 3] = n_opaque / (aa_res * aa_res - 1) * 255;
             }
         }
-        console.log("Done!");
+        console.log("Done! Rendering took " + (new Date().getTime() - start_time)/1000 + " seconds.");
         return new ImageData(aa_data, res_x, res_y);
     }
 }
