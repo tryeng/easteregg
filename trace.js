@@ -19,7 +19,7 @@ class Ray {
     illuminate(intersection, scene) {
         var color = [0, 0, 0];
         for (var i = 0; i < scene.lights.length; i++) {
-            color = vec3_add(color, light.illuminate(intersection, scene.lights[i]));
+            color = vec3_add(color, lights[i].illuminate(intersection, scene));
         }
         return [color[0], color[1], color[2], 1];
     }
