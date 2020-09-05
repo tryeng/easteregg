@@ -158,7 +158,7 @@ class Camera {
                 var vp_point = [(-this.width / 2) + this.width / res_x * (x + 0.5),
                                 (this.height / 2) - this.height / res_y * (y + 0.5),
                                 0];
-                var ray = new Ray(vp_point, vec3_normalize(vec3_sub(vp_point, this.focal_point)));
+                var ray = new Ray(this.focal_point, vec3_normalize(vec3_sub(vp_point, this.focal_point)));
                 var pixel = ray.render(scene);
                 for (var i = 0; i < 4; i++) {
                     data[(y * res_x + x) * 4 + i] = pixel[i] * 255;
