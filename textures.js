@@ -29,6 +29,31 @@ class Stripe {
     }
 }
 
+class Pixels {
+    constructor(center, width, pixels_per_circumference, x_res, y_res, spacing, x_offset, pixels) {
+        this.center = center;
+        this.width = width;
+        this.ppc = pixels_per_circumference;
+        this.x_res = x_res;
+        this.y_res = y_res;
+        this.spacing = spacing;
+        this.x_offset = x_offset;
+        this.pixels = pixels;
+    }
+
+    get_texel(pos) {
+        var y = (pos[1] - this.center + this.width / 2) / this.width * this.y_res;
+        var x = (pos[0] + this.x_offset) * this.ppc % this.ppc;
+        var distance_from_edge = Math.min(Math.abs(y - Math.round(y)), Math.abs(x - Math.round(x)));
+        var y = this.y_res - Math.floor((pos[1] - this.center + this.width / 2) / this.width * this.y_res) - 1;
+        var x = Math.floor(x);
+        if (0 <= y && y < this.y_res && x < this.x_res && distance_from_edge > this.spacing) {
+            return this.pixels[y * this.x_res + x];
+        }
+        else return false;
+    }
+}
+
 class DoubleSine {
     constructor(center, width, freq, offset, amplitude, color) {
         this.center = center;
@@ -100,7 +125,7 @@ function DoubleSineAndStripes(color1, color2, color3, color4) {
     ]);
 }
 
-function CrochetSock(color1, color2, color3) {
+function CrochetSock(color1) {
     var stripes = [];
     for (i = 0; i < 10; i++) {
         stripes.push(new Sine(0.40, 0.01, 2, 1.0 / 10 * i, 0.25, color1));
